@@ -3,14 +3,25 @@
 library(tidyverse)
 library(tidymodels)
 library(fastshap)
+codex/rewrite-project-in-r-using-tidy-syntax-wt9d7c
+
+# Load feature engineering helpers
+=======
+master
 source("R/features.R")
 
 #' Load raw incident data
 #'
+codex/rewrite-project-in-r-using-tidy-syntax-wt9d7c
+#' @param path Path to a CSV file containing officer incidents. The file is
+#'   expected to include columns identifying the officer, event type, and any
+#'   additional attributes used for feature engineering.
+=======
 #' @param path Path to a CSV file containing officer incidents.  The file is
 #'   expected to include columns identifying the officer, event type, and any
 #'   additional attributes used for feature engineering (for example
 #'   `event_datetime`, `suspension_type`, `incident_type`, `shift_type`, etc.).
+master
 #'   A binary `outcome` flag is expected for modelling.
 #' @return A tibble with the raw data.
 load_data <- function(path) {
@@ -18,6 +29,8 @@ load_data <- function(path) {
 }
 
 # -----------------------------------------------------------------------------
+codex/rewrite-project-in-r-using-tidy-syntax-wt9d7c
+=======
 # Feature engineering helpers -------------------------------------------------
 # -----------------------------------------------------------------------------
 
@@ -282,6 +295,7 @@ build_features <- function(df) {
 }
 
 # -----------------------------------------------------------------------------
+master
 # Modelling ------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 
