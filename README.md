@@ -26,6 +26,12 @@ any columns needed for the individual feature blocks (for example
 `suspension_type`, `incident_type`, `shift_type`, `driver_race`, etc.) along with
 an `outcome` flag.
 
+Peer context features additionally require an `incident_id` to link officers
+who respond to the same incident. The data should also include `complaint` and
+`use_of_force` events with dates so that colleagues with recent issues can be
+identified. Network centrality metrics are calculated with the optional
+`igraph` package.
+
 ## How to Run the Pipeline
 The pipeline has two main configurations. In the **modelling** configuration, there are three distinct steps.
 
