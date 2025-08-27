@@ -3,7 +3,6 @@
 library(tidyverse)
 library(tidymodels)
 library(fastshap)
-source("R/features.R")
 
 #' Load raw incident data
 #'
@@ -273,10 +272,9 @@ build_features <- function(df) {
   characteristics <- build_characteristics_features(df)
   employment <- build_employment_features(df)
   demographic <- build_demographic_features(df)
-  peer_context <- build_peer_context_features(df)
 
   list(incidents, compliments, shifts, arrests, traffic,
-       characteristics, employment, demographic, peer_context) %>%
+       characteristics, employment, demographic) %>%
     reduce(full_join, by = "officer_id") %>%
     replace(is.na(.), 0)
 }
