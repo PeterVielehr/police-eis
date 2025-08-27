@@ -1,4 +1,5 @@
-codex/rewrite-project-in-r-using-tidy-syntax-wt9d7c
+codex/rewrite-project-in-r-using-tidy-syntax-btt2e0
+
 # Feature engineering helpers for the R EIS pipeline
 
 library(tidyverse)
@@ -472,6 +473,8 @@ build_features <- function(df) {
     replace(is.na(.), 0)
 }
 
+codex/rewrite-project-in-r-using-tidy-syntax-btt2e0
+=======
 =======
 # Peer context feature engineering utilities
 
@@ -549,3 +552,4 @@ build_peer_context_features <- function(df, lookback_days = 90) {
     replace(is.na(.), 0)
 }
 master
+
