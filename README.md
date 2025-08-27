@@ -21,6 +21,7 @@ result$confusion
 head(result$shap)
 ```
 
+codex/rewrite-project-in-r-using-tidy-syntax-wt9d7c
 Feature engineering helpers are organized in `R/features.R`.  In addition to
 the incident, shift, arrest, and traffic stop summaries, the feature set now
 includes time-of-day and calendar attributes from dispatch records (minute,
@@ -35,6 +36,18 @@ any columns needed for the individual feature blocks (for example
 `incident_id`, `suspension_type`, `incident_type`, `shift_type`, `driver_race`,
 `use_of_force_type`, `in_response_to_resisting_arrest`, or `source`) along
 with an `outcome` flag.
+=======
+The CSV is expected to contain `officer_id`, `event_datetime`, `event_type`, and
+any columns needed for the individual feature blocks (for example
+`suspension_type`, `incident_type`, `shift_type`, `driver_race`, etc.) along with
+an `outcome` flag.
+
+Peer context features additionally require an `incident_id` to link officers
+who respond to the same incident. The data should also include `complaint` and
+`use_of_force` events with dates so that colleagues with recent issues can be
+identified. Network centrality metrics are calculated with the optional
+`igraph` package.
+master
 
 ## How to Run the Pipeline
 The pipeline has two main configurations. In the **modelling** configuration, there are three distinct steps.
