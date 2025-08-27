@@ -4,21 +4,36 @@ library(tidyverse)
 library(tidymodels)
 library(fastshap)
 
+codex/rewrite-project-in-r-using-tidy-syntax-btt2e0
+
 # Load feature engineering helpers
+=======
+
+master
+
 source("R/features.R")
 
 #' Load raw incident data
 #'
+codex/rewrite-project-in-r-using-tidy-syntax-btt2e0
 #' @param path Path to a CSV file containing officer incidents. The file is
 #'   expected to include columns identifying the officer, event type, and any
 #'   additional attributes used for feature engineering.
+=======
+
+#' @param path Path to a CSV file containing officer incidents.  The file is
+#'   expected to include columns identifying the officer, event type, and any
+#'   additional attributes used for feature engineering (for example
+#'   `event_datetime`, `suspension_type`, `incident_type`, `shift_type`, etc.).
+master
+
 #'   A binary `outcome` flag is expected for modelling.
 #' @return A tibble with the raw data.
 load_data <- function(path) {
   readr::read_csv(path, show_col_types = FALSE)
 }
 
-# -----------------------------------------------------------------------------
+
 # Modelling ------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 
@@ -28,7 +43,10 @@ load_data <- function(path) {
 #' @param labels Numeric vector of binary outcomes per officer.
 #' @param model Character; either "logistic" (default) or "xgboost".
 #' @return List containing the fitted model, evaluation metrics, confusion matrix,
+codex/rewrite-project-in-r-using-tidy-syntax-btt2e0
 #'   SHAP values (if available), and a global importance summary.
+=======
+
 train_model <- function(features, labels, model = c("logistic", "xgboost")) {
   model <- match.arg(model)
 
@@ -59,6 +77,7 @@ train_model <- function(features, labels, model = c("logistic", "xgboost")) {
 
   fitted <- workflow %>% fit(train_data)
 
+
   prob_preds <- predict(fitted, test_data, type = "prob")
   preds <- prob_preds %>%
     bind_cols(test_data %>% select(officer_id, outcome))
@@ -85,6 +104,7 @@ train_model <- function(features, labels, model = c("logistic", "xgboost")) {
     mutate(
       .pred_class = factor(ifelse(prob_preds$.pred_1 >= best_thresh, 1, 0), levels = c(0, 1))
     )
+
 
   metrics_tbl <- yardstick::metrics(preds, truth = outcome, estimate = .pred_class)
   confusion <- yardstick::conf_mat(preds, truth = outcome, estimate = .pred_class)
@@ -153,6 +173,7 @@ plot_shap_importance <- function(shap_vals, top_n = 20) {
       title = "SHAP feature importance"
     ) +
     theme_minimal()
+
 }
 
 #' Run the full pipeline given a path to raw data.
