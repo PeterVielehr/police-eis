@@ -1,28 +1,7 @@
-# Feature engineering utilities
-
-#' Body-worn camera features
-#'
-#' For each officer, compute body-worn camera activation rates along with
-#' counts of manual shutoffs and incidents where footage is missing.
-#'
-#' @param df Tibble returned by `load_data`. Must include `officer_id`,
-#'   `event_type`, `bodycam_on`, `manual_shutoff`, and `missing_footage`.
-#' @return Tibble with one row per officer and bodycam features.
-build_bodycam_features <- function(df) {
-  df %>%
-    filter(event_type == "bodycam") %>%
-    group_by(officer_id) %>%
-    summarise(
-      bodycam_activation_rate = mean(bodycam_on == TRUE, na.rm = TRUE),
-      bodycam_manual_shutoffs = sum(manual_shutoff == TRUE, na.rm = TRUE),
-      bodycam_missing_footage = sum(missing_footage == TRUE, na.rm = TRUE),
-      .groups = "drop"
-    ) %>%
-    replace(is.na(.), 0)
-}
+# Peer context feature engineering utilities
 
 #' Peer context features
-#' 
+#'
 #' For each officer, count the number of incidents co-assigned with colleagues
 #' who have recent complaints or uses of force. Optionally compute network
 #' centrality measures (degree and betweenness) on the co-assignment graph.
