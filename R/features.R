@@ -337,6 +337,62 @@ build_demographic_features <- function(df) {
     )
 }
 
+#' Count incidents where peers have recent complaints or use of force
+#'
+#' @param df Tibble of all events
+#' @param window_days Number of days defining "recent"
+#' @return Tibble with peer context counts per officer
+build_peer_context_features <- function(df, window_days = 90) {
+  id_col <- if ("incident_id" %in% names(df)) "incident_id" else if ("event_id" %in% names(df)) "event_id" else NULL
+  if (is.null(id_col)) {
+    return(tibble(officer_id = unique(df$officer_id)))
+  }
+
+  incidents <- df %>%
+    filter(event_type == "incident" & !is.na(.data[[id_col]])) %>%
+    mutate(event_id = .data[[id_col]]) %>%
+    select(event_id, officer_id, event_datetime)
+
+  if (nrow(incidents) == 0) {
+    return(tibble(officer_id = unique(df$officer_id)))
+  }
+
+  last_events <- df %>%
+    filter(event_type %in% c("complaint", "use_of_force")) %>%
+    group_by(officer_id, event_type) %>%
+    summarise(last_event = max(event_datetime), .groups = "drop") %>%
+    pivot_wider(names_from = event_type, values_from = last_event,
+                names_prefix = "last_")
+
+  incidents_peers <- incidents %>%
+    left_join(last_events, by = "officer_id")
+
+  peer_flags <- incidents_peers %>%
+    group_by(event_id) %>%
+    group_modify(~{
+      n <- nrow(.x)
+      map_dfr(seq_len(n), function(i) {
+        others <- .x[-i, ]
+        diff_comp <- as.numeric(difftime(.x$event_datetime[i], others$last_complaint, units = "days"))
+        diff_uof <- as.numeric(difftime(.x$event_datetime[i], others$last_use_of_force, units = "days"))
+        tibble(
+          officer_id = .x$officer_id[i],
+          peer_recent_complaint = any(!is.na(diff_comp) & diff_comp >= 0 & diff_comp <= window_days),
+          peer_recent_uof = any(!is.na(diff_uof) & diff_uof >= 0 & diff_uof <= window_days)
+        )
+      })
+    }) %>%
+    ungroup() %>%
+    group_by(officer_id) %>%
+    summarise(
+      incidents_with_peer_recent_complaint = sum(peer_recent_complaint, na.rm = TRUE),
+      incidents_with_peer_recent_uof = sum(peer_recent_uof, na.rm = TRUE),
+      .groups = "drop"
+    )
+
+  peer_flags
+}
+
 build_dispatch_time_features <- function(df) {
   dispatch <- df %>% filter(event_type == "dispatch")
 
@@ -403,13 +459,14 @@ build_features <- function(df) {
   arrests <- build_arrests_features(df)
   traffic <- build_traffic_stop_features(df)
   uof <- build_use_of_force_features(df)
+  peer_context <- build_peer_context_features(df)
   dispatch_time <- build_dispatch_time_features(df)
   characteristics <- build_characteristics_features(df)
   employment <- build_employment_features(df)
   demographic <- build_demographic_features(df)
 
   list(incidents, complaint_outcomes, compliments, shifts, arrests, traffic,
-       uof, dispatch_time, characteristics, employment, demographic) %>%
+       uof, peer_context, dispatch_time, characteristics, employment, demographic) %>%
     reduce(full_join, by = "officer_id") %>%
     replace(is.na(.), 0)
 }
