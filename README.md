@@ -5,6 +5,35 @@
 
 This is a data-driven Early Intervention System (EIS) for police departments. The system uses a police department's data to predict which officers are likely to have an adverse interaction with the public. An adverse incident can be defined on a department by department basis, but typically includes unjustified uses of force, officer injuries, preventable accidents and sustained complaints. This is done such that additional training, counseling and other resources can be provided to the officer _before_ any adverse interactions occur.
 
+## R Tidyverse Pipeline
+
+An experimental implementation in R is available in the `R/pipeline.R` script.
+It translates the Python feature engineering blocks into a tidyverse workflow
+and can train either a logistic regression or an XGBoost model using
+**tidymodels**.  The result includes model metrics, a confusion matrix, and
+per-officer SHAP values derived with `fastshap`.
+
+```r
+source("R/pipeline.R")
+result <- run_pipeline("path/to/incidents.csv", model = "xgboost")
+print(result$metrics)
+result$confusion
+head(result$shap)
+```
+
+Feature engineering helpers are organized in `R/features.R`.  In addition to
+the incident, shift, arrest, and traffic stop summaries, the feature set now
+includes time-of-day and calendar attributes from dispatch records (minute,
+hour, day of week, quarter, month, and year), detailed complaint outcome counts,
+and use-of-force metrics such as unjustified force, suspect injuries,
+temporal change indicators, and disproportionate-force ratios.
+
+The CSV is expected to contain `officer_id`, `event_datetime`, `event_type`, and
+any columns needed for the individual feature blocks (for example
+`suspension_type`, `incident_type`, `shift_type`, `driver_race`,
+`use_of_force_type`, `in_response_to_resisting_arrest`, or `source`) along
+with an `outcome` flag.
+
 ## How to Run the Pipeline
 The pipeline has two main configurations. In the **modelling** configuration, there are three distinct steps.
 
